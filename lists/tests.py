@@ -7,7 +7,10 @@ from lists.views import home_page
 # Create your tests here.
 class HomePageTest(TestCase):
 	def test_root_url_resolves_to_home_page_view(self):
+		# 解析"/"
 		found = resolve('/')
+
+		# 验证解析"/"的函数名，是否为home_page
 		self.assertEqual(found.func, home_page)
 
 	def test_home_page_returns_correct_html(self):
