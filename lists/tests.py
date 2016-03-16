@@ -27,5 +27,16 @@ class HomePageTest(TestCase):
 
 		# 测试方法二：对比unicode字符串
 		expected_code = render_to_string('home.html')
-		print(expected_code)
+		# print(expected_code)
+		self.assertEqual(response.content.decode(), expected_code)
+
+
+	def test_home_page_can_save_a_POST_request(self):
+		request = HttpRequest()
+		request.method = 'POST'
+		request.POST['item_text'] = 'A new list item'
+
+		response = home_page(request)
+		self.assertIn('A new list item', response.content.decode())
+		expected_code = render_to_string('home.html', {'new_item_text': 'A new list item'})
 		self.assertEqual(response.content.decode(), expected_code)

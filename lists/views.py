@@ -4,4 +4,7 @@ from django.http import HttpResponse
 
 
 def home_page(request):
-	return render(request, 'home.html')
+	# 正确的
+	return render(request, 'home.html', { 'new_item_text': request.POST.get('item_text', '')})
+	# 错误的
+	# return render(request, 'home.html', { 'new_item_text': request.POST['item_text']})
