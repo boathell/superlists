@@ -1,9 +1,10 @@
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from django.test import LiveServerTestCase
 import unittest
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
 
 	# 启动时执行
     def setUp(self):
@@ -23,7 +24,8 @@ class NewVisitorTest(unittest.TestCase):
 
     # 功能测试主题部分。函数以test开头，表示测试所用。
     def test_can_start_a_list_and_retrieve_it_later(self):
-        self.browser.get('http://localhost:8000')
+        # self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
 
         self.assertIn('To-Do', self.browser.title)
         header_text = self.browser.find_element_by_tag_name('h1').text
@@ -38,7 +40,8 @@ class NewVisitorTest(unittest.TestCase):
         inputbox.send_keys('Buy peacock feathers')
         inputbox.send_keys(Keys.ENTER)
 		
-
+        # 经测试，这里要再次引入inputbox
+        inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send_keys('Use peacock feathers to make a fly')
         inputbox.send_keys(Keys.ENTER)
 
@@ -62,9 +65,9 @@ class NewVisitorTest(unittest.TestCase):
         #self.assertIn('1: Buy peacock feathers', [row.text for row in rows])
 
 	    # 作为一个标记，每次都执行
-	    # self.fail('Finish the test!')
+        self.fail('Finish the test!')
 
-# 当在命令行执行时执行
-if __name__ == '__main__':
-    # unittest.main(warnings='ignore')
-    unittest.main()
+# 当在命令行执行时执行，在使用LiveServerTestCase后可以删除
+# if __name__ == '__main__':
+#     # unittest.main(warnings='ignore')
+#     unittest.main()
