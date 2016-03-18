@@ -8,6 +8,7 @@ from lists.models import Item
 
 # Create your tests here.
 class HomePageTest(TestCase):
+	# 测试“/”能否正确解析到home_page
 	def test_root_url_resolves_to_home_page_view(self):
 		# 解析"/"
 		found = resolve('/')
@@ -15,6 +16,7 @@ class HomePageTest(TestCase):
 		# 验证解析"/"的函数名，是否为home_page
 		self.assertEqual(found.func, home_page)
 
+	# 测试请求的home_page是否正确
 	def test_home_page_returns_correct_html(self):
 		request = HttpRequest()
 		response = home_page(request)
@@ -30,19 +32,52 @@ class HomePageTest(TestCase):
 		# print(expected_code)
 		self.assertEqual(response.content.decode(), expected_code)
 
-
+	# 测试POST请求能否被正确保存
 	def test_home_page_can_save_a_POST_request(self):
 		request = HttpRequest()
 		request.method = 'POST'
 		request.POST['item_text'] = 'A new list item'
 
 		response = home_page(request)
-		self.assertIn('A new list item', response.content.decode())
-		expected_code = render_to_string('home.html', {'new_item_text': 'A new list item'})
-		self.assertEqual(response.content.decode(), expected_code)
 
+		self.assertEqual(Item.objects.count(), 1)
+		new_item = Item.objects.first()
+		self.assertEqual(new_item.text, 'A new list item')
+
+		# self.assertIn('A new list item', response.content.decode())
+		# expected_code = render_to_string('home.html', {'new_item_text': 'A new list item'})
+		# self.assertEqual(response.content.decode(), expected_code)
+	# 测试是否只保存POST请求
+	def test_home_page_only_saves_items_when_necessary(self):
+		request = HttpRequest()
+		home_page(request)
+		self.assertEqual(Item.objects.count(), 0)
+
+	# 测试POST请求提交后是否重新定向
+	def test_home_page_redirects_after_POST(self):
+		request = HttpRequest()
+		request.method = 'POST'
+		request.POST['item_text'] = 'A new list item'
+
+		response = home_page(request)
+
+		self.assertEqual(response.status_code, 302)
+		self.assertEqual(response['location'], '/')
+ 
+	# 检查模板是否能显示多个待办事项
+	def test_home_page_displays_all_list_items(self):
+		Item.objects.create(text='itemey 1')
+		Item.objects.create(text='itemey 2')
+
+		request = HttpRequest()
+		response = home_page(request)
+
+		self.assertIn('itemey 1', response.content.decode())
+		self.assertIn('itemey 2', response.content.decode())
 
 class ItemModelTest(TestCase):
+
+	# 测试是否能正确保存ITEM
 	def test_saving_and_retrieving_items(self):
 		first_item = Item()
 		first_item.text = 'The first (ever) list item'
